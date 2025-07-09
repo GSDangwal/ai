@@ -3,11 +3,12 @@ import "./newPrompt.css";
 import Upload from "./upload/upload";
 import { IKImage } from "imagekitio-react";
 import generate from "../../lib/gemini";
+import Markdown from "react-markdown";
 
 const NewPrompt = () => {
   const [question, setQuestion] = useState("");
   const [ans, setAns] = useState("");
-
+  const [loading, setLoading] = useState(null);
   const [image, setImage] = useState({
     loading: false,
     error: "",
@@ -23,11 +24,10 @@ const NewPrompt = () => {
     event.preventDefault();
     const text = event.target.text.value;
     if (!text) return;
-    generate(text, setAns, setQuestion);
+    generate(text, setAns, setQuestion, setLoading);
   };
   return (
     <>
-      {image.loading && <div>Loading...</div>}
       {image.data.filePath && (
         <IKImage
           urlEndpoint={import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT}
@@ -37,7 +37,13 @@ const NewPrompt = () => {
         />
       )}
       {question && <div className="message user">{question}</div>}
-      {ans && <div className="message">{ans}</div>}
+      {loading && <h1>Loading...</h1>}
+      {image.loading && <div>Loading...</div>}
+      {ans && (
+        <div className="message">
+          <Markdown>{ans}</Markdown>
+        </div>
+      )}
       <div className="endChat" ref={endRef}></div>
       <form onSubmit={handleSubmit} className="newForm">
         <Upload setImage={setImage} />
